@@ -225,12 +225,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\DragonBones\Demos\Scripts\CombineMeshTest.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\AnimationBase.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\AnimationLayer.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\BaseDemo.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\BoneOffset.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\BoundingBox.cs" />
     <Compile Include="Assets\DragonBones\Demos\Scripts\CoreElement.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\DragonBonesEvent.cs" />
     <Compile Include="Assets\DragonBones\Demos\Scripts\HelloDragonBones.cs" />
-    <Compile Include="Assets\DragonBones\Demos\Scripts\LightTest.cs" />
-    <Compile Include="Assets\DragonBones\Demos\Scripts\PerformanceTest.cs" />
-    <Compile Include="Assets\DragonBones\Demos\Scripts\ReplaceDisplayTextureTest.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\InverseKinematics.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\LightShader.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\Performance.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\ReplaceAnimtion.cs" />
+    <Compile Include="Assets\DragonBones\Demos\Scripts\ReplaceSkin.cs" />
     <Compile Include="Assets\DragonBones\Demos\Scripts\ReplaceSlotDisplay.cs" />
     <Compile Include="Assets\DragonBones\Scripts\3rdParty\MiniJSON.cs" />
     <Compile Include="Assets\DragonBones\Scripts\animation\Animation.cs" />
@@ -274,9 +281,9 @@
     <Compile Include="Assets\DragonBones\Scripts\parser\BinaryDataWriter.cs" />
     <Compile Include="Assets\DragonBones\Scripts\parser\DataParser.cs" />
     <Compile Include="Assets\DragonBones\Scripts\parser\ObjectDataParser.cs" />
+    <Compile Include="Assets\DragonBones\Scripts\unity\MeshBuffer.cs" />
     <Compile Include="Assets\DragonBones\Scripts\unity\UnityArmatureComponent.cs" />
-    <Compile Include="Assets\DragonBones\Scripts\unity\UnityBone.cs" />
-    <Compile Include="Assets\DragonBones\Scripts\unity\UnityCombineMesh.cs" />
+    <Compile Include="Assets\DragonBones\Scripts\unity\UnityCombineMeshs.cs" />
     <Compile Include="Assets\DragonBones\Scripts\unity\UnityDragonBonesData.cs" />
     <Compile Include="Assets\DragonBones\Scripts\unity\UnityEventDispatcher.cs" />
     <Compile Include="Assets\DragonBones\Scripts\unity\UnityFactory.cs" />
@@ -289,13 +296,13 @@
     <Compile Include="Assets\Effectors\Scripts\DestroyItself.cs" />
     <Compile Include="Assets\Effectors\Scripts\PlayerContoller.cs" />
     <Compile Include="Assets\Effectors\Scripts\Spawner.cs" />
+    <Compile Include="Assets\pase_wall.cs" />
+    <Compile Include="Assets\player_conter.cs" />
     <Compile Include="Packages\com.unity.xiaomi@1.0.0\UnityChannel\XiaomiSupport\AppStoreSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\DragonBones\Demos\Scripts\LightTestShader.shader" />
-    <None Include="Assets\DragonBones\Resources\Shaders\DB_BlendMode_Framebuffer.shader" />
     <None Include="Assets\DragonBones\Resources\Shaders\DB_BlendMode_Grab.shader" />
-    <None Include="Assets\DragonBones\Resources\Shaders\DB_BlendMode_UIFramebuffer.shader" />
     <None Include="Assets\DragonBones\Resources\Shaders\DB_BlendMode_UIGrab.shader" />
     <None Include="Assets\骷髅动画\注意！.txt" />
   </ItemGroup>

@@ -230,7 +230,14 @@ namespace DragonBones
             Armature childArmature = null;
             if (childTransform == null)
             {
-                childArmature = BuildArmature(displayData.path, dataPackage.dataName);
+                if (dataPackage != null)
+                {
+                    childArmature = BuildArmature(displayData.path, dataPackage.dataName);
+                }
+                else
+                {
+                    childArmature = BuildArmature(displayData.path, displayData.parent.parent.parent.name);
+                }
             }
             else
             {
@@ -267,12 +274,29 @@ namespace DragonBones
             var armatureDisplay = armature.display as GameObject;
             var transform = armatureDisplay.transform.Find(slotData.name);
             var gameObject = transform == null ? null : transform.gameObject;
+            var isNeedIngoreCombineMesh = false;
             if (gameObject == null)
             {
                 gameObject = new GameObject(slotData.name);
             }
+            else
+            {
+                if (gameObject.hideFlags == HideFlags.None)
+                {
+                    var combineMeshs = (armature.proxy as UnityArmatureComponent).GetComponent<UnityCombineMeshs>();
+                    if (combineMeshs != null)
+                    {
+                        isNeedIngoreCombineMesh = !combineMeshs.slotNames.Contains(slotData.name);
+                    }
+                }
+            }
 
             slot.Init(slotData, displays, gameObject, gameObject);
+
+            if (isNeedIngoreCombineMesh)
+            {
+                slot.DisallowCombineMesh();
+            }
 
             return slot;
         }
@@ -474,7 +498,6 @@ namespace DragonBones
                     }
 #endif
                 }
-
                 textureAtlasData.texture = material;
             }
         }
@@ -830,7 +853,7 @@ namespace DragonBones
                 }
             }
         }
-         /// <private/>
+        /// <private/>
         public override void ReplaceDisplay(Slot slot, DisplayData displayData, int displayIndex = -1)
         {
             //UGUI Display Object and Normal Display Object cannot be replaced with each other
@@ -1105,6 +1128,11 @@ namespace DragonBones
 
         internal static void DestroyUnityObject(UnityEngine.Object obj)
         {
+            if (obj == null)
+            {
+                return;
+            }
+
 #if UNITY_EDITOR
             UnityEngine.Object.DestroyImmediate(obj);
 #else
@@ -1118,48 +1146,6 @@ namespace DragonBones
         internal static void LogWarning(object message)
         {
             UnityEngine.Debug.LogWarning("[DragonBones]" + message);
-        }
-    }
-
-    public static class JsonHelper
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="jsonParse"></param>
-        /// <returns></returns>
-        public static Dictionary<string, object> DeserializeBinaryJsonData(byte[] bytes, out int headerLength, BinaryDataParser.JsonParseDelegate jsonParse = null)
-        {
-            headerLength = 0;
-            Dictionary<string, object> result = null;
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream(bytes))
-            using (BinaryDataReader reader = new BinaryDataReader(ms))
-            {
-                ms.Position = 0;
-                byte[] tag = reader.ReadBytes(8);
-
-                byte[] array = System.Text.Encoding.ASCII.GetBytes("DBDT");
-
-                if (tag[0] != array[0] ||
-                     tag[1] != array[1] ||
-                     tag[2] != array[2] ||
-                     tag[3] != array[3])
-                {
-                    Helper.Assert(false, "Nonsupport data.");
-                    return null;
-                }
-
-                headerLength = (int)reader.ReadUInt32();
-                var headerBytes = reader.ReadBytes(headerLength);
-                var headerString = System.Text.Encoding.UTF8.GetString(headerBytes);
-                result = jsonParse != null ? jsonParse(headerString) as Dictionary<string, object> : MiniJSON.Json.Deserialize(headerString) as Dictionary<string, object>;
-
-                reader.Close();
-                ms.Dispose();
-            }
-
-            return result;
         }
     }
 }

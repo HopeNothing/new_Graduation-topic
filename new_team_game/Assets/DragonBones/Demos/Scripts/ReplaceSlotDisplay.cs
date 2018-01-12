@@ -1,119 +1,130 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using DragonBones;
 
-[RequireComponent(typeof(UnityArmatureComponent))]
-public class ReplaceSlotDisplay : MonoBehaviour
+public class ReplaceSlotDisplay : BaseDemo
 {
-    private int _displayIndex = -1;
-    private string[] _replaceDisplays = {
-        // Replace normal display.
-        "display0002", "display0003", "display0004", "display0005", "display0006", "display0007", "display0008", "display0009", "display0010",
-        // Replace mesh display.
-        "meshA", "meshB", "meshC"
-    };
+    private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r" };
 
-    [SerializeField]
-    private UnityDragonBonesData replaceData;
+    private GameObject _logoReplaceTxt;
 
-    private UnityArmatureComponent _armatureComponent = null;
+    private UnityArmatureComponent _armatureComp = null;
+    private Slot _leftWeaponSlot = null;
+    private Slot _rightWeaponSlot = null;
 
-    // Use this for initialization
-    void Start()
+    private GameObject _sourceLogoDisplay = null;
+
+    private int _leftWeaponIndex = -1;
+    private int _rightWeaponIndex = -1;
+
+    protected override void OnStart()
     {
-        UnityFactory.factory.LoadData(replaceData);
+        // Load Mecha Data
+        UnityFactory.factory.LoadDragonBonesData("mecha_1004d_show/mecha_1004d_show_ske");
+        UnityFactory.factory.LoadTextureAtlasData("mecha_1004d_show/mecha_1004d_show_tex");
 
-        _armatureComponent = this.GetComponent<UnityArmatureComponent>();
-        //_armatureComponent.timeScale = 0.1f;
-        _armatureComponent.animation.timeScale = 0.1f;
-        _armatureComponent.animation.Play();
+        // Load Right Weapon Data
+        UnityFactory.factory.LoadDragonBonesData("weapon_1004_show/weapon_1004_show_ske");
+        UnityFactory.factory.LoadTextureAtlasData("weapon_1004_show/weapon_1004_show_tex");
+
+        // Build Mecha Armature
+        this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_1004d");
+        //
+        this._armatureComp.CloseCombineMeshs();
+
+        this._armatureComp.animation.Play("idle");
+
+        this._armatureComp.transform.localPosition = new Vector3(0.0f, -2.0f, 0.0f);
+
+        //
+        this._leftWeaponSlot = this._armatureComp.armature.GetSlot("weapon_hand_l");
+        this._rightWeaponSlot = this._armatureComp.armature.GetSlot("weapon_hand_r");
+
+        this._sourceLogoDisplay = this._armatureComp.armature.GetSlot("logo").display as GameObject;
+
+        // Set left weapon default value
+        this._leftWeaponIndex = 0;
+        // Set right weapon default value
+        this._rightWeaponIndex = 0;
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void OnUpdate()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            _replaceDisplay();
+            var leftSide = 0.0f + Screen.width / 2.0f - Screen.width / 6.0f;
+            var rightSide = Screen.width / 2.0f + Screen.width / 6.0f;
+            var isMiddle = Input.mousePosition.x < rightSide && Input.mousePosition.x > leftSide;
+            var isTouchRight = Input.mousePosition.x > rightSide;
+            //
+            if (isMiddle)
+            {
+                this._ReplaceDisplay(0);
+            }
+            else
+            {
+                this._ReplaceDisplay(isTouchRight ? 1 : -1);
+            }
         }
     }
 
-    private void _replaceDisplay()
+    private void _ReplaceDisplay(int type)
     {
-        _displayIndex = (_displayIndex + 1) % _replaceDisplays.Length;
-
-        var replaceDisplayName = _replaceDisplays[_displayIndex];
-        if (replaceDisplayName.IndexOf("mesh") >= 0) // Replace mesh display.
+        switch (type)
         {
-            switch (replaceDisplayName)
-            {
-                case "meshA":
-                    // Normal to mesh.
-                    UnityFactory.factory.ReplaceSlotDisplay(
-                        "replace",
-                        "MyMesh",
-                        "meshA",
-                        "weapon_1004_1",
-                        _armatureComponent.armature.GetSlot("weapon")
-                    );
-                    // Replace mesh texture. 
-                    UnityFactory.factory.ReplaceSlotDisplay(
-                        "replace",
-                        "MyDisplay",
-                        "ball",
-                        "display0002",
-                        _armatureComponent.armature.GetSlot("mesh")
-                    );
-                    break;
-
-                case "meshB":
-                    // Normal to mesh.
-                    UnityFactory.factory.ReplaceSlotDisplay(
-                        "replace",
-                        "MyMesh",
-                        "meshB",
-                        "weapon_1004_1",
-                        _armatureComponent.armature.GetSlot("weapon")
-                    );
-                    // Replace mesh texture. 
-                    UnityFactory.factory.ReplaceSlotDisplay(
-                        "replace",
-                        "MyDisplay",
-                        "ball",
-                        "display0003",
-                        _armatureComponent.armature.GetSlot("mesh")
-                    );
-                    break;
-
-                case "meshC":
-                    // Back to normal.
-                    UnityFactory.factory.ReplaceSlotDisplay(
-                        "replace",
-                        "MyMesh",
-                        "mesh",
-                        "weapon_1004_1",
-                        _armatureComponent.armature.GetSlot("weapon")
-                    );
-                    // Replace mesh texture. 
-                    UnityFactory.factory.ReplaceSlotDisplay(
-                        "replace",
-                        "MyDisplay",
-                        "ball",
-                        "display0005",
-                        _armatureComponent.armature.GetSlot("mesh")
-                    );
-                    break;
-            }
+            case 1:
+                {
+                    // Switch slot display index
+                    this._leftWeaponIndex++;
+                    this._leftWeaponIndex %= this._leftWeaponSlot.displayList.Count;
+                    this._leftWeaponSlot.displayIndex = this._leftWeaponIndex;
+                }
+                break;
+            case -1:
+                {
+                    // Replace slot display
+                    this._rightWeaponIndex++;
+                    this._rightWeaponIndex %= WEAPON_RIGHT_LIST.Length;
+                    var weaponDisplayName = WEAPON_RIGHT_LIST[this._rightWeaponIndex];
+                    //
+                    UnityFactory.factory.ReplaceSlotDisplay("weapon_1004_show", "weapon", "weapon_r", weaponDisplayName, this._rightWeaponSlot);
+                }
+                break;
+            default:
+                {
+                    var logoSlot = this._armatureComp.armature.GetSlot("logo") as UnitySlot;
+                    //
+                    if (logoSlot.renderDisplay.GetComponent<TextMesh>() != null)
+                    {
+                        logoSlot.display = this._sourceLogoDisplay;
+                    }
+                    else
+                    {
+                        logoSlot.display = this._GetTextLogo();
+                    }
+                }
+                break;
         }
-        else // Replace normal display.
+
+    }
+
+    private GameObject _GetTextLogo()
+    {
+        if (this._logoReplaceTxt == null)
         {
-            UnityFactory.factory.ReplaceSlotDisplay(
-                "replace",
-                "MyDisplay",
-                "ball",
-                replaceDisplayName,
-                _armatureComponent.armature.GetSlot("ball")
-            );
+            // Create 3d Text
+            this._logoReplaceTxt = new GameObject("txt_logo");
+            var textMesh = this._logoReplaceTxt.AddComponent<TextMesh>();
+            textMesh.characterSize = 0.2f;
+            textMesh.fontSize = 20;
+            textMesh.text = "Core Element";
+            textMesh.anchor = TextAnchor.MiddleCenter;
+            textMesh.alignment = TextAlignment.Center;
+            textMesh.richText = false;
         }
+
+        return this._logoReplaceTxt;
     }
 }

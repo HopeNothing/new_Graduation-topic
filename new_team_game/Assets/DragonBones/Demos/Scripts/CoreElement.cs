@@ -1,564 +1,550 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using DragonBones;
 
-namespace coreElement
+public class CoreElement : BaseDemo
 {
-    public class CoreElement : MonoBehaviour
+    public const float G = -0.005f;
+    public const float GROUND = 0.0f;
+
+    public const KeyCode left = KeyCode.A;
+    public const KeyCode right = KeyCode.D;
+    public const KeyCode up = KeyCode.W;
+    public const KeyCode down = KeyCode.S;
+    public const KeyCode switchSkin = KeyCode.Space;
+    public const KeyCode switchLeftWeapon = KeyCode.Q;
+    public const KeyCode switchRightWeapon = KeyCode.E;
+
+    private Mecha _player;
+
+    protected override void OnStart()
     {
-        private const string NORMAL_ANIMATION_GROUP = "normal";
-        private const string AIM_ANIMATION_GROUP = "aim";
-        private const string ATTACK_ANIMATION_GROUP = "attack";
-
-        private const float G = -0.005f;
-        private const float GROUND = 0.0f;
-        private const float JUMP_SPEED = -0.2f;
-        private const float NORMALIZE_MOVE_SPEED = 0.03f;
-        private const float MAX_MOVE_SPEED_FRONT = NORMALIZE_MOVE_SPEED * 1.4f;
-        private const float MAX_MOVE_SPEED_BACK = NORMALIZE_MOVE_SPEED * 1.0f;
-        private static readonly string[] WEAPON_LEFT_LIST = { "weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", "weapon_1005e" };
-        private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1502b_r", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d" };
-        private static readonly string[] SKINS = { "mecha_1502b", "skin_a", "skin_b", "skin_c" };
-        
-        public KeyCode left = KeyCode.A;
-        public KeyCode right = KeyCode.D;
-        public KeyCode up = KeyCode.W;
-        public KeyCode down = KeyCode.S;
-        public KeyCode switchSkin = KeyCode.Space;
-        public KeyCode switchLeftWeapon = KeyCode.Q;
-        public KeyCode switchRightWeapon = KeyCode.E;
-        
-        private bool _isJumpingA = false;
-        private bool _isJumpingB = false;
-        private bool _isSquating = false;
-        private bool _isAttackingA = false;
-        private bool _isAttackingB = false;
-        private int _skinIndex = 0;
-        private int _weaponLeftIndex = 0;
-        private int _weaponRightIndex = 0;
-        private int _faceDir = 1;
-        private int _moveDir = 0;
-        private int _aimDir = 0;
-        private float _aimRadian = 0.0f;
-
-        private UnityArmatureComponent _armatureComponent = null;
-        private Armature _weaponLeft = null;
-        private Armature _weaponRight = null;
-        private DragonBones.AnimationState _aimState = null;
-        private DragonBones.AnimationState _walkState = null;
-        private DragonBones.AnimationState _attackState = null;
-        private Vector2 _speed = new Vector2();
-        private Vector2 _target = new Vector2();
+        // Load data
+        UnityFactory.factory.LoadDragonBonesData("mecha_1502b/mecha_1502b_ske");
+        UnityFactory.factory.LoadTextureAtlasData("mecha_1502b/mecha_1502b_tex");
+        UnityFactory.factory.LoadDragonBonesData("skin_1502b/skin_1502b_ske");
+        UnityFactory.factory.LoadTextureAtlasData("skin_1502b/skin_1502b_tex");
+        UnityFactory.factory.LoadDragonBonesData("weapon_1000/weapon_1000_ske");
+        UnityFactory.factory.LoadTextureAtlasData("weapon_1000/weapon_1000_tex");
 
         //
-        [SerializeField]
-        private UnityDragonBonesData dragonBoneData;
-        [SerializeField]
-        private UnityDragonBonesData skinData;
-        [SerializeField]
-        private UnityDragonBonesData weaponData;
+        this._player = new Mecha();
+    }
 
-        void Start()
+    protected override void OnUpdate()
+    {
+        // Input 
+        var isLeft = Input.GetKey(left);
+        var isRight = Input.GetKey(right);
+
+        if (isLeft == isRight)
         {
-            UnityFactory.factory.autoSearch = true;
-            UnityFactory.factory.LoadData(skinData);
-            UnityFactory.factory.LoadData(weaponData);
-            UnityFactory.factory.LoadData(dragonBoneData);
-
-            var armatureDisplay = new GameObject("mecha_1502b");
-#if UNITY_5_6_OR_NEWER
-            //armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
-#endif
-            _armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1502b", null, null, null, armatureDisplay);
-
-#if UNITY_5_6_OR_NEWER
-            //_armatureComponent.sortingMode = SortingMode.SortByOrder;
-#endif
-            _armatureComponent.AddEventListener(EventObject.FADE_IN_COMPLETE, _animationEventHandler);
-            _armatureComponent.AddEventListener(EventObject.FADE_OUT_COMPLETE, _animationEventHandler);
-
-            // Get weapon childArmature.
-            _weaponLeft = _armatureComponent.armature.GetSlot("weapon_l").childArmature;
-            _weaponRight = _armatureComponent.armature.GetSlot("weapon_r").childArmature;
-
-            _weaponLeft.eventDispatcher.AddDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
-            _weaponRight.eventDispatcher.AddDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
-
-            _armatureComponent.animation.Reset();
-            _armatureComponent.animation.Play("idle");
-            _armatureComponent.armature.flipX = true;
-
-            _updateAnimation();
+            this._player.Move(0);
+        }
+        else if (isLeft)
+        {
+            this._player.Move(-1);
+        }
+        else
+        {
+            this._player.Move(1);
         }
 
-        void Update()
+        if (Input.GetKeyDown(up))
         {
-            // Input 
-            var isLeft = Input.GetKey(left);
-            var isRight = Input.GetKey(right);
-
-            if (isLeft == isRight)
-            {
-                _move(0);
-            }
-            else if (isLeft)
-            {
-                _move(-1);
-            }
-            else
-            {
-                _move(1);
-            }
-
-            if (Input.GetKeyDown(up))
-            {
-                _jump();
-            }
-
-            _squat(Input.GetKey(down));
-            
-            if (Input.GetKeyDown(switchSkin))
-            {
-                _switchSkin();
-            }
-
-            if (Input.GetKeyDown(switchLeftWeapon))
-            {
-                _switchWeaponLeft();
-            }
-
-            if (Input.GetKeyDown(switchRightWeapon))
-            {
-                _switchWeaponRight();
-            }
-
-            var target = Camera.main.ScreenToWorldPoint(Input.mousePosition + new Vector3(0.0f, 0.0f, Camera.main.farClipPlane));
-            _aim(target.x, target.y);
-
-            _attack(Input.GetMouseButton(0));
-
-            //
-            _updatePosition();
-            _updateAim();
-            _updateAttack();
+            this._player.Jump();
         }
 
-        private void _animationEventHandler(string type, EventObject eventObject)
-        {
-            switch (type)
-            {
-                case EventObject.FADE_IN_COMPLETE:
-                    if (eventObject.animationState.name == "jump_1")
-                    {
-                        _isJumpingB = true;
-                        _speed.y = -JUMP_SPEED;
-                        _armatureComponent.animation.FadeIn("jump_2", -1, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
-                    }
-                    else if (eventObject.animationState.name == "jump_4")
-                    {
-                        _updateAnimation();
-                    }
-                    break;
+        this._player.Squat(Input.GetKey(down));
 
-                case EventObject.FADE_OUT_COMPLETE:
-                    if (eventObject.animationState.name == "attack_01")
-                    {
-                        _isAttackingB = false;
-                        _attackState = null;
-                    }
-                    break;
-            }
+        if (Input.GetKeyDown(switchSkin))
+        {
+            this._player.SwitchSkin();
         }
 
-        private void _frameEventHandler(string type, EventObject eventObject)
+        if (Input.GetKeyDown(switchLeftWeapon))
         {
-            if (eventObject.name == "fire")
-            {
-                var transform = (eventObject.armature.display as GameObject).transform;
-                var localPoint = new Vector3(eventObject.bone.global.x, -eventObject.bone.global.y, 0.0f);
-                var globalPoint = transform.worldToLocalMatrix.inverse.MultiplyPoint(localPoint);
-                this._fire(globalPoint);
-            }
+            this._player.SwitchWeaponL();
         }
 
-        private void _move(int dir)
+        if (Input.GetKeyDown(switchRightWeapon))
         {
-            if (_moveDir == dir)
-            {
-                return;
-            }
-
-            _moveDir = dir;
-            _updateAnimation();
+            this._player.SwitchWeaponR();
         }
 
-        private void _jump()
-        {
-            if (_isJumpingA)
-            {
-                return;
-            }
+        var target = Camera.main.ScreenToWorldPoint(Input.mousePosition + new Vector3(0.0f, 0.0f, Camera.main.farClipPlane));
+        this._player.Aim(target.x, target.y);
 
-            _isJumpingA = true;
-            _armatureComponent.animation.FadeIn("jump_1", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false ;
-            _walkState = null;
+        this._player.Attack(Input.GetMouseButton(0));
+        this._player.Update();
+    }
+}
+
+public class Mecha
+{
+    private const float JUMP_SPEED = -0.2f;
+    private const float NORMALIZE_MOVE_SPEED = 0.03f;
+    private const float MAX_MOVE_SPEED_FRONT = NORMALIZE_MOVE_SPEED * 1.4f;
+    private const float MAX_MOVE_SPEED_BACK = NORMALIZE_MOVE_SPEED * 1.0f;
+    private const string NORMAL_ANIMATION_GROUP = "normal";
+    private const string AIM_ANIMATION_GROUP = "aim";
+    private const string ATTACK_ANIMATION_GROUP = "attack";
+
+    private static readonly string[] WEAPON_L_LIST = { "weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", "weapon_1005e" };
+    private static readonly string[] WEAPON_R_LIST = { "weapon_1502b_r", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d" };
+    private static readonly string[] SKINS = { "mecha_1502b", "skin_a", "skin_b", "skin_c" };
+
+    private bool _isJumpingA = false;
+    private bool _isJumpingB = false;
+    private bool _isSquating = false;
+    private bool _isAttackingA = false;
+    private bool _isAttackingB = false;
+    private int _weaponRIndex = 0;
+    private int _weaponLIndex = 0;
+    private int _skinIndex = 0;
+    private int _faceDir = 1;
+    private int _aimDir = 0;
+    private int _moveDir = 0;
+    private float _aimRadian = 0.0f;
+    private float _speedX = 0.0f;
+    private float _speedY = 0.0f;
+    private DragonBones.Armature _armature;
+    private UnityArmatureComponent _armatureComponent;
+    private DragonBones.Armature _weaponL;
+    private DragonBones.Armature _weaponR;
+    private DragonBones.AnimationState _aimState = null;
+    private DragonBones.AnimationState _walkState = null;
+    private DragonBones.AnimationState _attackState = null;
+    private Vector2 _target = Vector2.zero;
+    // private Vector2 _helpPoint = Vector2.zero;
+
+    public Mecha()
+    {
+        this._armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1502b");
+        this._armature = this._armatureComponent.armature;
+
+        this._armatureComponent.transform.localPosition = new Vector3(0.0f, CoreElement.GROUND, 0.0f);
+
+        this._armatureComponent.AddDBEventListener(DragonBones.EventObject.FADE_IN_COMPLETE, this._OnAnimationEventHandler);
+        this._armatureComponent.AddDBEventListener(DragonBones.EventObject.FADE_OUT_COMPLETE, this._OnAnimationEventHandler);
+        this._armatureComponent.AddDBEventListener(DragonBones.EventObject.COMPLETE, this._OnAnimationEventHandler);
+
+        //
+        this._weaponL = this._armature.GetSlot("weapon_l").childArmature;
+        this._weaponR = this._armature.GetSlot("weapon_r").childArmature;
+        this._weaponL.eventDispatcher.AddDBEventListener(DragonBones.EventObject.FRAME_EVENT, this._OnFrameEventHandler);
+        this._weaponR.eventDispatcher.AddDBEventListener(DragonBones.EventObject.FRAME_EVENT, this._OnFrameEventHandler);
+
+        this._UpdateAnimation();
+    }
+
+    public void Move(int dir)
+    {
+        if (this._moveDir == dir)
+        {
+            return;
         }
 
-        private void _squat(bool isSquating)
-        {
-            if (_isSquating == isSquating)
-            {
-                return;
-            }
+        this._moveDir = dir;
+        this._UpdateAnimation();
+    }
 
-            _isSquating = isSquating;
-            _updateAnimation();
+    public void Jump()
+    {
+        if (this._isJumpingA)
+        {
+            return;
+        }
+        //
+        this._isJumpingA = true;
+        this._armature.animation.FadeIn("jump_1", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
+        this._walkState = null;
+    }
+
+    public void Squat(bool isSquating)
+    {
+        if (this._isSquating == isSquating)
+        {
+            return;
         }
 
-        private void _switchWeaponLeft()
+        this._isSquating = isSquating;
+        this._UpdateAnimation();
+    }
+
+    public void Attack(bool isAttacking)
+    {
+        if (this._isAttackingA == isAttacking)
         {
-            _weaponLeftIndex++;
-            if (_weaponLeftIndex >= WEAPON_LEFT_LIST.Length)
-            {
-                _weaponLeftIndex = 0;
-            }
-
-            _weaponLeft.eventDispatcher.RemoveDBEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
-
-            var weaponName = WEAPON_LEFT_LIST[_weaponLeftIndex];
-            _weaponLeft = UnityFactory.factory.BuildArmature(weaponName);
-            _armatureComponent.armature.GetSlot("weapon_l").childArmature = _weaponLeft;
-            _weaponLeft.eventDispatcher.AddDBEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
+            return;
         }
 
-        private void _switchWeaponRight()
+        this._isAttackingA = isAttacking;
+    }
+
+    public void SwitchWeaponL()
+    {
+        this._weaponL.eventDispatcher.RemoveDBEventListener(DragonBones.EventObject.FRAME_EVENT, this._OnFrameEventHandler);
+
+        this._weaponLIndex++;
+        this._weaponLIndex %= WEAPON_L_LIST.Length;
+        var weaponName = WEAPON_L_LIST[this._weaponLIndex];
+        this._weaponL = UnityFactory.factory.BuildArmature(weaponName);
+        this._armature.GetSlot("weapon_l").childArmature = this._weaponL;
+        this._weaponL.eventDispatcher.AddDBEventListener(DragonBones.EventObject.FRAME_EVENT, this._OnFrameEventHandler);
+    }
+
+    public void SwitchWeaponR()
+    {
+        this._weaponR.eventDispatcher.RemoveDBEventListener(DragonBones.EventObject.FRAME_EVENT, this._OnFrameEventHandler);
+
+        this._weaponRIndex++;
+        this._weaponRIndex %= WEAPON_R_LIST.Length;
+        var weaponName = WEAPON_R_LIST[this._weaponRIndex];
+        this._weaponR = UnityFactory.factory.BuildArmature(weaponName);
+        this._armature.GetSlot("weapon_r").childArmature = this._weaponR;
+        this._weaponR.eventDispatcher.AddDBEventListener(DragonBones.EventObject.FRAME_EVENT, this._OnFrameEventHandler);
+    }
+
+    public void SwitchSkin()
+    {
+        this._skinIndex++;
+        this._skinIndex %= SKINS.Length;
+        var skinName = SKINS[this._skinIndex];
+        var skinData = UnityFactory.factory.GetArmatureData(skinName).defaultSkin;
+        List<string> exclude = new List<string>();
+        exclude.Add("weapon_l");
+        exclude.Add("weapon_r");
+        UnityFactory.factory.ReplaceSkin(this._armature, skinData, false, exclude);
+    }
+
+    public void Aim(float x, float y)
+    {
+        this._target.x = x;
+        this._target.y = y;
+    }
+
+    public void Update()
+    {
+        this._UpdatePosition();
+        this._UpdateAim();
+        this._UpdateAttack();
+    }
+
+    private void _UpdatePosition()
+    {
+        if (this._speedX == 0.0f && !_isJumpingB)
         {
-            _weaponRightIndex++;
-            if (_weaponRightIndex >= WEAPON_RIGHT_LIST.Length)
-            {
-                _weaponRightIndex = 0;
-            }
-
-            _weaponRight.eventDispatcher.RemoveDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
-
-            var weaponName = WEAPON_RIGHT_LIST[_weaponRightIndex];
-            _weaponRight = UnityFactory.factory.BuildArmature(weaponName);
-            _armatureComponent.armature.GetSlot("weapon_r").childArmature = _weaponRight;
-            _weaponRight.eventDispatcher.AddDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            return;
         }
 
-        public void _switchSkin()
+        var position = this._armatureComponent.transform.localPosition;
+
+        if (this._speedX != 0.0f)
         {
-            this._skinIndex++;
-            this._skinIndex %= SKINS.Length;
-            var skinName = SKINS[this._skinIndex];
-            var skinData = UnityFactory.factory.GetArmatureData(skinName).defaultSkin;
-            List<string> exclude = new List<string>();
-            exclude.Add("weapon_l");
-            exclude.Add("weapon_r");
-            UnityFactory.factory.ReplaceSkin(this._armatureComponent.armature, skinData, false, exclude);
-        }
+            position.x += this._speedX * this._armatureComponent.animation.timeScale;
 
-        private void _aim(float x, float y)
-        {
-            if (_aimDir == 0)
+            if (position.x < -4.0f)
             {
-                _aimDir = 10;
+                position.x = -4.0f;
             }
-
-            _target.x = x;
-            _target.y = y;
-        }
-
-        private void _attack(bool isAttacking)
-        {
-            if (_isAttackingA == isAttacking)
+            else if (position.x > 4.0f)
             {
-                return;
-            }
-
-            _isAttackingA = isAttacking;
-        }
-
-        private void _fire(Vector3 firePoint)
-        {
-            firePoint.x += Random.Range(-0.01f, 0.01f);
-            firePoint.y += Random.Range(-0.01f, 0.01f);
-            firePoint.z = -0.2f;
-
-            var bulletArmatureComonponnet = UnityFactory.factory.BuildArmatureComponent("bullet_01");
-            var bulletComonponnet = bulletArmatureComonponnet.gameObject.AddComponent<Bullet>();
-            var radian = _faceDir < 0 ? Mathf.PI - _aimRadian : _aimRadian;
-            bulletArmatureComonponnet.animation.timeScale = _armatureComponent.animation.timeScale;
-            bulletComonponnet.transform.position = firePoint;
-            bulletComonponnet.Init("fire_effect_01", radian + Random.Range(-0.01f, 0.01f), 0.4f);
-        }
-
-        private void _updateAnimation()
-        {
-            if (_isJumpingA || _isJumpingB)
-            {
-                return;
-            }
-
-            if (_isSquating)
-            {
-                _speed.x = 0.0f;
-                _armatureComponent.animation.FadeIn("squat", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
-                _walkState = null;
-                return;
-            }
-
-            if (_moveDir == 0.0f)
-            {
-                _speed.x = 0.0f;
-                _armatureComponent.animation.FadeIn("idle", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
-                _walkState = null;
-            }
-            else
-            {
-                if (_walkState == null)
-                {
-                    _walkState = _armatureComponent.animation.FadeIn("walk", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
-                    this._walkState.resetToPose = false;
-                }
-                
-                if (this._moveDir * this._faceDir > 0.0f)
-                {
-                    this._walkState.timeScale = MAX_MOVE_SPEED_FRONT / NORMALIZE_MOVE_SPEED;
-                }
-                else
-                {
-                    this._walkState.timeScale = -MAX_MOVE_SPEED_BACK / NORMALIZE_MOVE_SPEED;
-                }
-
-                if (this._moveDir * this._faceDir > 0.0f)
-                {
-                    _speed.x = MAX_MOVE_SPEED_FRONT * this._faceDir;
-                }
-                else
-                {
-                    _speed.x = -MAX_MOVE_SPEED_BACK * this._faceDir;
-                }
+                position.x = 4.0f;
             }
         }
 
-        private void _updatePosition()
+        if (this._isJumpingB)
         {
-            if (_speed.x == 0.0f && !_isJumpingB)
+            if (this._speedY > -0.05f && this._speedY + CoreElement.G <= -0.05f)
             {
-                return;
+                this._armatureComponent.animation.FadeIn("jump_3", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
             }
 
-            var position = this._armatureComponent.transform.localPosition;
-            //var position = this.transform.localPosition;
-            
-            if (_speed.x != 0.0f)
+            this._speedY += CoreElement.G;
+            position.y += this._speedY * this._armatureComponent.animation.timeScale;
+
+            if (position.y < CoreElement.GROUND)
             {
-                position.x += _speed.x * _armatureComponent.animation.timeScale;
-
-                if (position.x < -4.0f)
-                {
-                    position.x = -4.0f;
-                }
-                else if (position.x > 4.0f)
-                {
-                    position.x = 4.0f;
-                }
+                position.y = CoreElement.GROUND;
+                this._isJumpingA = false;
+                this._isJumpingB = false;
+                this._speedX = 0.0f;
+                this._speedY = 0.0f;
+                this._armatureComponent.animation.FadeIn("jump_4", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
             }
-
-            if (_isJumpingB)
-            {
-                if (_speed.y > -0.05f && _speed.y + G <= -0.05f)
-                {
-                    _armatureComponent.animation.FadeIn("jump_3", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
-                }
-
-                _speed.y += G * _armatureComponent.animation.timeScale;
-                position.y += _speed.y * _armatureComponent.animation.timeScale;
-
-                if (position.y < GROUND)
-                {
-                    position.y = GROUND;
-                    _isJumpingA = false;
-                    _isJumpingB = false;
-                    _speed.x = 0.0f;
-                    _speed.y = 0.0f;
-                    _armatureComponent.animation.FadeIn("jump_4", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
-
-                    if (_isSquating || _moveDir != 0.0f)
-                    {
-                        _updateAnimation();
-                    }
-                }
-            }
-
-            this._armatureComponent.transform.localPosition = position;
-            //this.transform.localPosition = position;
         }
 
-        private void _updateAim()
+        this._armatureComponent.transform.localPosition = position;
+    }
+
+    private void _UpdateAim()
+    {
+        var position = this._armatureComponent.transform.localPosition;
+        this._faceDir = this._target.x > position.x ? 1 : -1;
+
+        if (this._faceDir < 0.0f ? !this._armatureComponent.armature.flipX : this._armatureComponent.armature.flipX)
         {
-            if (_aimDir == 0)
+            this._armatureComponent.armature.flipX = !this._armatureComponent.armature.flipX;
+
+            if (this._moveDir != 0)
             {
-                return;
+                this._UpdateAnimation();
             }
-
-            var position = this._armatureComponent.transform.localPosition;
-            //var position = this.transform.localPosition;
-            _faceDir = _target.x > position.x ? 1 : -1;
-
-            if (_faceDir < 0.0f ? !_armatureComponent.armature.flipX : _armatureComponent.armature.flipX)
-            {
-                _armatureComponent.armature.flipX = !_armatureComponent.armature.flipX;
-
-                if (_moveDir != 0)
-                {
-                    _updateAnimation();
-                }
-            }
-
-            var aimOffsetY = _armatureComponent.armature.GetBone("chest").global.y * this.transform.localScale.y;
-
-            if (_faceDir > 0)
-            {
-                _aimRadian = Mathf.Atan2(-(_target.y - position.y - aimOffsetY), _target.x - position.x);
-            }
-            else
-            {
-                _aimRadian = Mathf.PI - Mathf.Atan2(-(_target.y - position.y - aimOffsetY), _target.x - position.x);
-                if (_aimRadian > Mathf.PI)
-                {
-                    _aimRadian -= Mathf.PI * 2.0f;
-                }
-            }
-            
-            int aimDir = 0;
-            if (_aimRadian > 0.0f)
-            {
-                aimDir = -1;
-            }
-            else
-            {
-                aimDir = 1;
-            }
-
-            if (_aimDir != aimDir)
-            {
-                _aimDir = aimDir;
-
-                // Animation mixing.
-                if (_aimDir >= 0)
-                {
-                    _aimState = _armatureComponent.animation.FadeIn(
-                        "aim_up", -1.0f, 1,
-                        0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
-                    );
-                }
-                else
-                {
-                    _aimState = _armatureComponent.animation.FadeIn(
-                        "aim_down", -1.0f, 1,
-                        0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
-                    );
-                }
-
-                _aimState.resetToPose = false;
-                // Add bone mask.
-                //_aimState.addBoneMask("pelvis");
-            }
-
-            _aimState.weight = Mathf.Abs(_aimRadian / Mathf.PI * 2.0f);
-
-            //_armature.invalidUpdate("pelvis"); // Only update bone mask.
-            _armatureComponent.armature.InvalidUpdate();
         }
 
-        private void _updateAttack()
-        {
-            if (!_isAttackingA || _isAttackingB)
-            {
-                return;
-            }
+        var aimOffsetY = this._armatureComponent.armature.GetBone("chest").global.y * this._armatureComponent.transform.localScale.y;
 
-            _isAttackingB = true;
+        if (this._faceDir > 0)
+        {
+            this._aimRadian = Mathf.Atan2(-(this._target.y - position.y - aimOffsetY), this._target.x - position.x);
+        }
+        else
+        {
+            this._aimRadian = Mathf.PI - Mathf.Atan2(-(this._target.y - position.y - aimOffsetY), this._target.x - position.x);
+            if (this._aimRadian > Mathf.PI)
+            {
+                this._aimRadian -= Mathf.PI * 2.0f;
+            }
+        }
+
+        int aimDir = 0;
+        if (this._aimRadian > 0.0f)
+        {
+            aimDir = -1;
+        }
+        else
+        {
+            aimDir = 1;
+        }
+
+        if (this._aimState == null || this._aimDir != aimDir)
+        {
+            this._aimDir = aimDir;
 
             // Animation mixing.
-            _attackState = _armatureComponent.animation.FadeIn(
-                "attack_01", -1.0f, -1,
-                0, ATTACK_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
-            );
+            if (this._aimDir >= 0)
+            {
+                this._aimState = this._armatureComponent.animation.FadeIn("aim_up", -1.0f, 1, 0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup);
+            }
+            else
+            {
+                this._aimState = this._armatureComponent.animation.FadeIn("aim_down", -1.0f, 1, 0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup);
+            }
 
-            _attackState.resetToPose = false;
-            _attackState.autoFadeOutTime = _attackState.fadeTotalTime;
-            _attackState.AddBoneMask("pelvis");
+            this._aimState.resetToPose = false;
+        }
+
+        this._aimState.weight = Mathf.Abs(this._aimRadian / Mathf.PI * 2.0f);
+
+        this._armatureComponent.armature.InvalidUpdate();
+    }
+
+    private void _UpdateAttack()
+    {
+        if (!this._isAttackingA || this._isAttackingB)
+        {
+            return;
+        }
+
+        this._isAttackingB = true;
+        this._attackState = this._armature.animation.FadeIn("attack_01", -1.0f, -1, 0, ATTACK_ANIMATION_GROUP);
+        this._attackState.resetToPose = false;
+        this._attackState.autoFadeOutTime = this._attackState.fadeTotalTime;
+    }
+
+    private void _UpdateAnimation()
+    {
+        if (this._isJumpingA)
+        {
+            return;
+        }
+
+        if (this._isSquating)
+        {
+            this._speedX = 0;
+            this._armature.animation.FadeIn("squat", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
+
+            this._walkState = null;
+            return;
+        }
+
+        if (this._moveDir == 0)
+        {
+            this._speedX = 0;
+            this._armature.animation.FadeIn("idle", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
+            this._walkState = null;
+        }
+        else
+        {
+            if (this._walkState == null)
+            {
+                this._walkState = this._armature.animation.FadeIn("walk", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
+                this._walkState.resetToPose = false;
+            }
+
+            if (this._moveDir * this._faceDir > 0)
+            {
+                this._walkState.timeScale = MAX_MOVE_SPEED_FRONT / NORMALIZE_MOVE_SPEED;
+            }
+            else
+            {
+                this._walkState.timeScale = -MAX_MOVE_SPEED_BACK / NORMALIZE_MOVE_SPEED;
+            }
+
+            if (this._moveDir * this._faceDir > 0)
+            {
+                this._speedX = MAX_MOVE_SPEED_FRONT * this._faceDir;
+            }
+            else
+            {
+                this._speedX = -MAX_MOVE_SPEED_BACK * this._faceDir;
+            }
         }
     }
 
-    [RequireComponent(typeof(UnityArmatureComponent))]
-    public class Bullet : MonoBehaviour
+    private void _Fire(Vector3 firePoint)
     {
-        private UnityArmatureComponent _armatureComponent = null;
-        private UnityArmatureComponent _effectComponent = null;
-        private Vector3 _speed = new Vector3();
+        firePoint.x += Random.Range(-0.01f, 0.01f);
+        firePoint.y += Random.Range(-0.01f, 0.01f);
+        firePoint.z = -0.2f;
 
-        void Awake()
+        var bulletArmatureComonponnet = UnityFactory.factory.BuildArmatureComponent("bullet_01");
+        var bulletComonponnet = bulletArmatureComonponnet.gameObject.AddComponent<Bullet>();
+        var radian = _faceDir < 0 ? Mathf.PI - this._aimRadian : this._aimRadian;
+        bulletArmatureComonponnet.animation.timeScale = _armatureComponent.animation.timeScale;
+        bulletComonponnet.transform.position = firePoint;
+        bulletComonponnet.Init("fire_effect_01", radian + Random.Range(-0.01f, 0.01f), 0.4f);
+    }
+
+    private void _OnAnimationEventHandler(string type, EventObject evt)
+    {
+        switch (evt.type)
         {
-            _armatureComponent = this.gameObject.GetComponent<UnityArmatureComponent>();
+            case DragonBones.EventObject.FADE_IN_COMPLETE:
+                {
+                    if (evt.animationState.name == "jump_1")
+                    {
+                        this._isJumpingB = true;
+                        this._speedY = -JUMP_SPEED;
+
+                        if (this._moveDir != 0)
+                        {
+                            if (this._moveDir * this._faceDir > 0)
+                            {
+                                this._speedX = MAX_MOVE_SPEED_FRONT * this._faceDir;
+                            }
+                            else
+                            {
+                                this._speedX = -MAX_MOVE_SPEED_BACK * this._faceDir;
+                            }
+                        }
+
+                        this._armature.animation.FadeIn("jump_2", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
+                    }
+                }
+                break;
+
+            case DragonBones.EventObject.FADE_OUT_COMPLETE:
+                {
+                    if (evt.animationState.name == "attack_01")
+                    {
+                        this._isAttackingB = false;
+                        this._attackState = null;
+                    }
+                }
+                break;
+
+            case DragonBones.EventObject.COMPLETE:
+                {
+                    if (evt.animationState.name == "jump_4")
+                    {
+                        this._isJumpingA = false;
+                        this._isJumpingB = false;
+                        this._UpdateAnimation();
+                    }
+                }
+                break;
         }
+    }
 
-        void Update()
+    private void _OnFrameEventHandler(string type, EventObject eventObject)
+    {
+        if (eventObject.name == "fire")
         {
-            if (_armatureComponent.armature == null)
+            var transform = (eventObject.armature.display as GameObject).transform;
+            var localPoint = new Vector3(eventObject.bone.global.x, -eventObject.bone.global.y, 0.0f);
+            var globalPoint = transform.worldToLocalMatrix.inverse.MultiplyPoint(localPoint);
+
+            this._Fire(globalPoint);
+        }
+    }
+}
+
+[RequireComponent(typeof(UnityArmatureComponent))]
+public class Bullet : MonoBehaviour
+{
+    private UnityArmatureComponent _armatureComponent = null;
+    private UnityArmatureComponent _effectComponent = null;
+    private Vector3 _speed = new Vector3();
+
+    void Awake()
+    {
+        this._armatureComponent = this.gameObject.GetComponent<UnityArmatureComponent>();
+    }
+
+    public void Init(string effectArmatureName, float radian, float speed)
+    {
+        this._speed.x = Mathf.Cos(radian) * speed * this._armatureComponent.animation.timeScale;
+        this._speed.y = -Mathf.Sin(radian) * speed * this._armatureComponent.animation.timeScale;
+
+        var rotation = this.transform.localEulerAngles;
+        rotation.z = -radian * DragonBones.Transform.RAD_DEG;
+        this.transform.localEulerAngles = rotation;
+        this._armatureComponent.armature.animation.Play("idle");
+
+        if (effectArmatureName != null)
+        {
+            this._effectComponent = UnityFactory.factory.BuildArmatureComponent(effectArmatureName);
+
+            var effectRotation = this._effectComponent.transform.localEulerAngles;
+            var effectScale = this._effectComponent.transform.localScale;
+            effectRotation.z = -radian * DragonBones.Transform.RAD_DEG;
+            if (Random.Range(0.0f, 1.0f) < 0.5)
             {
-                return;
+                effectRotation.x = 180.0f;
+                effectRotation.z = -effectRotation.z;
             }
 
-            this.transform.localPosition += _speed;
+            effectScale.x = Random.Range(1.0f, 2.0f);
+            effectScale.y = Random.Range(1.0f, 1.5f);
 
-            if (this.transform.localPosition.x < -7.0f || this.transform.localPosition.x > 7.0f ||
-                this.transform.localPosition.y < -7.0f || this.transform.localPosition.y > 7.0f )
-            {
-                _armatureComponent.armature.Dispose();
+            this._effectComponent.animation.timeScale = this._armatureComponent.animation.timeScale;
+            this._effectComponent.transform.localPosition = this.transform.localPosition;
+            this._effectComponent.transform.localEulerAngles = effectRotation;
+            this._effectComponent.transform.localScale = effectScale;
+            this._effectComponent.animation.Play("idle");
+        }
+    }
 
-                if (_effectComponent != null)
-                {
-                    _effectComponent.armature.Dispose();
-                }
-            }
+    void Update()
+    {
+        if (this._armatureComponent.armature == null)
+        {
+            return;
         }
 
-        public void Init(string effectArmatureName, float radian, float speed)
+        this.transform.localPosition += this._speed;
+
+        if (this.transform.localPosition.x < -7.0f || this.transform.localPosition.x > 7.0f ||
+            this.transform.localPosition.y < -7.0f || this.transform.localPosition.y > 7.0f)
         {
-            _speed.x = Mathf.Cos(radian) * speed * _armatureComponent.animation.timeScale;
-            _speed.y = -Mathf.Sin(radian) * speed * _armatureComponent.animation.timeScale;
+            this._armatureComponent.armature.Dispose();
 
-            var rotation = this.transform.localEulerAngles;
-            rotation.z = -radian * DragonBones.Transform.RAD_DEG;
-            this.transform.localEulerAngles = rotation;
-            _armatureComponent.armature.animation.Play("idle");
-
-            if (effectArmatureName != null)
+            if (this._effectComponent != null)
             {
-                _effectComponent = UnityFactory.factory.BuildArmatureComponent(effectArmatureName);
-
-                var effectRotation = _effectComponent.transform.localEulerAngles;
-                var effectScale = _effectComponent.transform.localScale;
-                effectRotation.z = -radian * DragonBones.Transform.RAD_DEG;
-                if (Random.Range(0.0f, 1.0f) < 0.5)
-                {
-                    effectRotation.x = 180.0f;
-                    effectRotation.z = -effectRotation.z;
-                }
-
-                effectScale.x = Random.Range(1.0f, 2.0f);
-                effectScale.y = Random.Range(1.0f, 1.5f);
-
-                _effectComponent.animation.timeScale = _armatureComponent.animation.timeScale;
-                _effectComponent.transform.localPosition = this.transform.localPosition;
-                _effectComponent.transform.localEulerAngles = effectRotation;
-                _effectComponent.transform.localScale = effectScale;
-                _effectComponent.animation.Play("idle");
+                this._effectComponent.armature.Dispose();
             }
         }
     }
