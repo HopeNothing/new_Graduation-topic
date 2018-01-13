@@ -91,7 +91,7 @@ MonoBehaviour:
   m_MinSize: {x: 917, y: 442}
   m_MaxSize: {x: 22012, y: 10021}
   vertical: 0
-  controlID: 42
+  controlID: 9
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_MinSize: {x: 202, y: 442}
   m_MaxSize: {x: 4002, y: 8042}
   vertical: 1
-  controlID: 103
+  controlID: 23
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -289,23 +289,23 @@ MonoBehaviour:
     height: 710
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: dc96feff
-    m_LastClickedID: -92452
-    m_ExpandedIDs: 2267fbff2467fbff2667fbff2867fbff2a67fbff82adfbff58f0fdffdc96feff6055ffff4e89ffff5a8bffff3a8dffff9e8effffec92ffff2494ffff5c95ffffe896ffff7498ffff049affffea9bffff929cffff3e9dffff789effffdea6ffff80aaffff74e5ffff76e5ffff78e5ffffa2e5ffffcce5ffffcee5ffffd0e5ffff10e6ffff12e6ffff14e6ffff16e6ffff18e6ffff1ae6ffff1ce6ffff9cfbffff00000000064a0000
+    m_SelectedIDs: 
+    m_LastClickedID: 0
+    m_ExpandedIDs: 1a4df7ff0c4ef7ffbc4ff7ffc44cf8ffb04df8ff5a4ff8ffd4edf8ff0e74faffa6fbffff00000000402d0000762d0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: player
+      m_OriginalName: player
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 0
+      m_UserData: 11584
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 0
       m_ClientGUIView: {fileID: 7}
     m_SearchString: 
@@ -384,7 +384,8 @@ MonoBehaviour:
     m_ScenePaths: []
     m_ShowAllHits: 0
     m_SearchArea: 0
-    m_Folders: []
+    m_Folders:
+    - "Assets/\u9AB7\u9AC5\u52A8\u753B/\u9AA8\u67B6\u6863\u6848/json\u6A94\u6848"
   m_ViewMode: 0
   m_StartGridSize: 64
   m_LastFolders: []
@@ -395,7 +396,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 46280000
     m_LastClickedID: 10310
-    m_ExpandedIDs: 00000000da2700003a2800007c290000aa290000d4290000582a00009a2a00009c2a0000662c0000
+    m_ExpandedIDs: 00000000ec270000662800006e290000322a00003a2a0000782a0000c02a0000642b0000be2b0000c62b00001a2f0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -420,10 +421,10 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_AssetTreeState:
-    scrollPos: {x: 0, y: 0}
+    scrollPos: {x: 0, y: 64}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000da2700003a2800007c290000aa290000d4290000582a00009a2a00009c2a0000662c00005232000072320000
+    m_ExpandedIDs: 00000000ec270000662800006e290000322a00003a2a0000782a0000c02a0000642b0000be2b0000c62b00001a2f0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -547,7 +548,7 @@ MonoBehaviour:
       width: 2135.933
       height: 1080
     m_MinimalGUI: 1
-  m_defaultScale: 0.33240741
+  m_defaultScale: 1
   m_TargetTexture: {fileID: 0}
   m_CurrentColorSpace: 0
   m_LastWindowPixelSize: {x: 710, y: 376}
@@ -581,14 +582,14 @@ MonoBehaviour:
     width: 710
     height: 313
   m_SceneLighting: 1
-  lastFramingTime: 22560.853772723087
+  lastFramingTime: 1532.9764677972464
   m_2DMode: 1
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -2.5354223, y: 0.68303293, z: -0.0274986}
+    m_Target: {x: 15.46232, y: -7.378355, z: 0.030674163}
     speed: 2
-    m_Value: {x: -2.5354223, y: 0.68303293, z: -0.0274986}
+    m_Value: {x: 15.46232, y: -7.378355, z: 0.030674163}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -615,15 +616,15 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 25.336823
+    m_Target: 4.6869555
     speed: 2
-    m_Value: 25.336823
+    m_Value: 4.6869555
   m_Ortho:
     m_Target: 1
     speed: 2
     m_Value: 1
   m_ShowGlobalGrid: 1
-  m_LastSceneViewRotation: {x: -0.08717229, y: 0.89959055, z: -0.21045254, w: -0.3726226}
+  m_LastSceneViewRotation: {x: 0.17930058, y: -0.6572226, z: 0.16523542, w: 0.71316683}
   m_LastSceneViewOrtho: 0
   m_ReplacementShader: {fileID: 0}
   m_ReplacementString: 

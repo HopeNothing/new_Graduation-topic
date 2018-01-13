@@ -6,6 +6,10 @@ public class pase_wall : MonoBehaviour {
 
     public GameObject pase;
 
+    public bool up_down;
+
+    public bool left_right;
+
 	// Use this for initialization
 	void Start () {
 		
@@ -20,7 +24,21 @@ public class pase_wall : MonoBehaviour {
     {
         //print(collision.gameObject.name + this.gameObject.name);
 
-        collision.gameObject.transform.position = new Vector2(collision.gameObject.transform.position.x, pase.transform.position.y);
+        if(((up_down==false)&&(left_right == false))|| ((up_down == true) && (left_right == true)))
+        {
+            print("Error : 牆壁錯誤");
+            return;
+        }
+
+        if(up_down == true)
+        {
+            collision.gameObject.transform.position = new Vector2(collision.gameObject.transform.position.x, pase.transform.position.y);
+        }
+        else if(left_right == true)
+        {
+            collision.gameObject.transform.position = new Vector2(pase.transform.position.x,collision.gameObject.transform.position.y);
+        }
+        
 
     }
 }

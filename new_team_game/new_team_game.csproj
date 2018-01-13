@@ -296,6 +296,7 @@
     <Compile Include="Assets\Effectors\Scripts\DestroyItself.cs" />
     <Compile Include="Assets\Effectors\Scripts\PlayerContoller.cs" />
     <Compile Include="Assets\Effectors\Scripts\Spawner.cs" />
+    <Compile Include="Assets\GameManger.cs" />
     <Compile Include="Assets\pase_wall.cs" />
     <Compile Include="Assets\player_conter.cs" />
     <Compile Include="Packages\com.unity.xiaomi@1.0.0\UnityChannel\XiaomiSupport\AppStoreSettings.cs" />
