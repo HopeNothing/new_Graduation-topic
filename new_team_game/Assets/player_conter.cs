@@ -24,7 +24,7 @@ public class player_conter : MonoBehaviour
     {
         player_rigidbody = this.GetComponent<Rigidbody2D>();
 
-        Physics2D.IgnoreCollision(this.gameObject.GetComponent<BoxCollider2D>(), GameObject.FindGameObjectWithTag("player").GetComponent<BoxCollider2D>());
+        Physics2D.IgnoreCollision(this.gameObject.GetComponent<CircleCollider2D>(), GameObject.FindGameObjectWithTag("player").GetComponent<CircleCollider2D>());
     }
 
     // Use this for initialization
@@ -97,6 +97,12 @@ public class player_conter : MonoBehaviour
         {
             onground = true;
         }
+       
     }
+
+    //private void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    print(collision.gameObject.name + collision.gameObject.transform.parent.name);
+    //}
 
 }
