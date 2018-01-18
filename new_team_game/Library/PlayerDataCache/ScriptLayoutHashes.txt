@@ -118,7 +118,6 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 463516d5b5fe8e67a0a24c48f2095b04 UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInputModule
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
-50667894c33b478dc38ae949114bb1e8 Assembly-CSharp.dll:AppStoresSupport.AppStoreSettings
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.CoreElement
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.ReplaceAnimtion
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.InverseKinematics
@@ -144,7 +143,6 @@ e9bdabf9265d758d56f01bb188916fa8 UnityEngine.Networking.dll:UnityEngine.Networki
 2a56361227def9f56c2cf57a88b32f4d UnityEngine.TestRunner.dll:UnityEngine.TestTools.TestRunner.PlaymodeTestsController
 64eb32cc721b1cc68a91ed57461e188c UnityEngine.TestRunner.dll:UnityEngine.TestTools.TestRunner.Callbacks.RemoteTestResultSender
 e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom
-05524b8f659e7bfe5756d1335fec24ba UnityStore.dll:UnityEngine.Store.MainThreadDispatcher
 b16cc0ca661d4f7f6473e9cc1b894300 Assembly-CSharp.dll:.pase_wall
 e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom
 bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.AudioSpatializerMicrosoft
@@ -155,9 +153,11 @@ c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.Spa
 89b7dd83023efc1d01d9ad82f7657d50 Assembly-CSharp.dll:.AreaEffectorDebuger
 b0b46951900f32ea6080281815203c68 Assembly-CSharp.dll:DragonBones.UnityArmatureComponent
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
-72c95f3ff91d37e3546a5307751774c8 Assembly-CSharp.dll:.player_conter
+f0527db6baaeca418a429eca0f8c9d2a Assembly-CSharp.dll:.player_conter
+242c6813ee339dba2c126e0eabfa45c9 Assembly-CSharp.dll:.floor_color
 0ea7e3a1b65cd933d7a007e6774c4eaa Assembly-CSharp.dll:.LightShader
 7cb899f7cf7d6bc2219f23a5e09738ee Assembly-CSharp.dll:DragonBones.UnityCombineMeshs
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.AnimationBase
 a07b7a958c4fc3766192a8a90cc1d889 Assembly-CSharp.dll:.DestroyItself
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.BaseDemo
+ddf303e57db348c12048e50eabe9e438 Assembly-CSharp.dll:.tower

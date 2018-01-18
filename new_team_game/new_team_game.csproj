@@ -294,6 +294,7 @@
     <Compile Include="Assets\GameManger.cs" />
     <Compile Include="Assets\pase_wall.cs" />
     <Compile Include="Assets\player_conter.cs" />
+    <Compile Include="Assets\tower.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\DragonBones\Demos\Scripts\LightTestShader.shader" />
