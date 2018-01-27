@@ -292,8 +292,10 @@
     <Compile Include="Assets\Effectors\Scripts\Spawner.cs" />
     <Compile Include="Assets\floor_color.cs" />
     <Compile Include="Assets\GameManger.cs" />
+    <Compile Include="Assets\ground_floor.cs" />
     <Compile Include="Assets\pase_wall.cs" />
     <Compile Include="Assets\player_conter.cs" />
+    <Compile Include="Assets\prop_manger.cs" />
     <Compile Include="Assets\tower.cs" />
   </ItemGroup>
   <ItemGroup>

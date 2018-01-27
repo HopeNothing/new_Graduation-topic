@@ -31,8 +31,6 @@ public class player_conter : MonoBehaviour
 
     public bool onground;
 
-
-
     //public bool jump_bool;
 
 
@@ -43,7 +41,7 @@ public class player_conter : MonoBehaviour
 
         
 
-        Physics2D.IgnoreCollision(this.gameObject.GetComponent<CircleCollider2D>(), GameObject.FindGameObjectWithTag("player").GetComponent<CircleCollider2D>());
+        Physics2D.IgnoreCollision(this.gameObject.GetComponent<CapsuleCollider2D>(), GameObject.FindGameObjectWithTag("player").GetComponent<CapsuleCollider2D>());
     }
 
     // Use this for initialization
