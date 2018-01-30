@@ -15,6 +15,8 @@ public class ground_floor : MonoBehaviour
 
     public bool corece_stop;
 
+    public int level_stop;
+
     public SpriteRenderer sprite_imager;
 
     public Sprite[] sprite_number;
@@ -48,14 +50,14 @@ public class ground_floor : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.GetComponent<prop_manger>().hammer ==true)
-        {
-            hammer = true;
-        }
-        else
-        {
-            hammer = false;
-        }
+        //if (collision.GetComponent<prop_manger>().hammer ==true)
+        //{
+        //    hammer = true;
+        //}
+        //else
+        //{
+        //    hammer = false;
+        //}
 
             if ((corece_stop == true) && (hammer == false)) 
         {

@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4811112192615796}
   - component: {fileID: 61960513089098370}
   - component: {fileID: 114257236452606632}
+  - component: {fileID: 114461297226806516}
   m_Layer: 0
   m_Name: ground_floor
   m_TagString: Untagged
@@ -189,16 +190,17 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1294302733058612}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6706c6da48d300645acdd51f828a5dac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   corece_name: 
   corece_num: 0
-  corece_num_max: 9
+  corece_num_max: 6
   corece_num_interval: 3
   corece_stop: 0
+  level_stop: 0
   sprite_imager: {fileID: 212300907203489090}
   sprite_number:
   - {fileID: 21300000, guid: e8ef0538b03925246833fe1a914dc830, type: 3}
@@ -208,6 +210,18 @@ MonoBehaviour:
   slider_tr: {fileID: 4656288250622528}
   left_max: 0.7
   right_max: -0.7
+  hammer: 0
+--- !u!114 &114461297226806516
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1294302733058612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d9597b1e2b07f4d8aeaec71aab07c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!210 &210289196520484874
 SortingGroup:
   m_ObjectHideFlags: 1
